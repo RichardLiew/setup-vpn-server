@@ -74,3 +74,4 @@ sudo docker cp ipsec-vpn-server:/etc/ipsec.d/vpnclient.p12 ./  # IKEv2
 
 # check contents of /etc/ipsec.d in the container
 #sudo docker exec -it ipsec-vpn-server ls -l /etc/ipsec.d
+
