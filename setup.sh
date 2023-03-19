@@ -42,20 +42,24 @@
 #
 # ---
 # Usage:
-#   nohup /bin/bash -c \
-#       "$(curl -fsSL https://github.com/RichardLiew/setup-vpn-server/raw/master/setup.sh)” \
-#       >> ./setup-vpn-server.log 2>&1 &
+#   1. nohup /bin/bash -c "$(curl -fsSL https://github.com/RichardLiew/setup-vpn-server/raw/master/setup.sh)" >> ./setup-vpn-server.log 2>&1 &
+#   2. nohub /bin/bash -c "$(curl -fsSL https://get.vpnsetup.net)" >> ./setup-vpn-server.log 2>&1 &
+#   3. nohub /bin/bash -c "$(curl -fsSL https://github.com/hwdsl2/setup-ipsec-vpn/raw/master/vpnsetup.sh)" >> ./setup-vpn-server.log 2>&1 &
+#
+# ---
+# Resources:
+#   1. https://github.com/hwdsl2/docker-ipsec-vpn-server
+#   2. https://hub.docker.com/r/hwdsl2/ipsec-vpn-server
+#   3. https://github.com/hwdsl2/setup-ipsec-vpn
+#   4. https://get.vpnsetup.net
+#   5. https://github.com/hwdsl2/setup-ipsec-vpn/raw/master/vpnsetup.sh
+#   6. https://github.com/hwdsl2/setup-ipsec-vpn/raw/master/vpnsetup_centos.sh
 #
 # ---
 # TODO (@Richard):
-#   1. yum remove quiet mode;
-#   2. docker cp file not exists;
-#   3. IKEv2 mode;
-#   4. all input yes or y during installing;
-#   5. getopt and getopts;
-#   6. help and usage info within man command;
-#   7. print info;
-#   8. colorful info.
+#   1. getopt and getopts;
+#   2. help and usage info within man command;
+#   3. print colorful info.
 #
 ###############################################################################
 
@@ -91,7 +95,7 @@ sudo mkdir -p ${WORKDIR}
 ################################################################################
 
 # install docker in centos system
-sudo yum remove -qy \
+sudo yum remove -q -y \
     docker \
     docker-client \
     docker-client-latest \
@@ -116,11 +120,11 @@ sudo systemctl start docker
 
 # create environment config file
 sudo echo "
-${VPN_IPSEC_PSK}
-${VPN_USER}
-${VPN_PASSWORD}
-${VPN_ADDL_USERS}
-${VPN_ADDL_PASSWORDS}
+VPN_IPSEC_PSK=${VPN_IPSEC_PSK}
+VPN_USER=${VPN_USER}
+VPN_PASSWORD=${VPN_PASSWORD}
+VPN_ADDL_USERS=${VPN_ADDL_USERS}
+VPN_ADDL_PASSWORDS=${VPN_ADDL_PASSWORDS}
 " > ${WORKDIR}/ipsec-vpn.env
 
 ################################################################################
@@ -133,6 +137,7 @@ sudo docker run \
     --name ipsec-vpn-server \
     --env-file ${WORKDIR}/ipsec-vpn.env \
     --restart=always \
+    -v ikev2-vpn-data:/etc/ipsec.d \
     -v /lib/modules:/lib/modules:ro \
     -p 500:500/udp \
     -p 4500:4500/udp \
@@ -141,7 +146,7 @@ sudo docker run \
     hwdsl2/ipsec-vpn-server
 
 # copy useful container files to current directory
-sudo docker cp ipsec-vpn-server:/etc/ipsec.d/* ${WORKDIR}/
+sudo docker cp ipsec-vpn-server:/etc/ipsec.d ${WORKDIR}/
 
 ################################################################################
 #
