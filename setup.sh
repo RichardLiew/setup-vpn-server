@@ -63,6 +63,10 @@
 set -e
 
 ################################################################################
+#
+# DEFAULT OPTIONS
+#
+################################################################################
 
 WORKDIR="."
 
@@ -78,6 +82,11 @@ VPN_ADDL_PASSWORDS='p1 p2 p3'
 
 # assign password to sudo command
 echo "${SERVER_ROOT_PASSWORD}" | sudo -S ls > /dev/null 2>&1
+
+################################################################################
+
+# create directories of workdir
+sudo mkdir -p ${WORKDIR}
 
 ################################################################################
 
@@ -124,7 +133,6 @@ sudo docker run \
     --name ipsec-vpn-server \
     --env-file ${WORKDIR}/ipsec-vpn.env \
     --restart=always \
-    -v ikev2-vpn-data:/etc/ipsec.d \
     -v /lib/modules:/lib/modules:ro \
     -p 500:500/udp \
     -p 4500:4500/udp \
@@ -132,10 +140,13 @@ sudo docker run \
     --privileged \
     hwdsl2/ipsec-vpn-server
 
-# copy environment config files to current directory
-sudo docker cp ipsec-vpn-server:/etc/ipsec.d/vpn-gen.env ${WORKDIR}/    # IPSec
-sudo docker cp ipsec-vpn-server:/etc/ipsec.d/vpnclient.p12 ${WORKDIR}/  # IKEv2
+# copy useful container files to current directory
+sudo docker cp ipsec-vpn-server:/etc/ipsec.d/* ${WORKDIR}/
 
+################################################################################
+#
+# DOCKER CONTAINER OPERATIONS
+#
 ################################################################################
 
 # check status of docker containers
@@ -147,3 +158,45 @@ sudo docker cp ipsec-vpn-server:/etc/ipsec.d/vpnclient.p12 ${WORKDIR}/  # IKEv2
 # check contents of /etc/ipsec.d in the container
 #sudo docker exec -it ipsec-vpn-server ls -l /etc/ipsec.d
 
+################################################################################
+#
+# REMOTE OPERATIONS
+#
+################################################################################
+
+# connect to remote server
+#ssh root@<IP> -p <PORT>
+
+# test udp port
+#nc -vuz <UDP-IP> <UDP-PORT>
+
+# test tcp port
+#telnet <TCP-IP> <TCP-PORT>
+
+################################################################################
+#
+# FIREWALL OPERATIONS
+#
+################################################################################
+
+# open firewall
+#systemctl start firewalld
+
+# close firewall
+#systemctl stop firewalld
+
+# enable startup
+#systemctl enable firewalld
+
+# disable startup
+#systemctl disable firewalld
+
+# add port
+#firewall-cmd --zone=public --add-port=<PORT>/<tcp|udp> --permanent
+#firewall-cmd --reload
+
+# check port
+#firewall-cmd --query-port=<PORT>/<tcp|udp>
+
+# list ports
+#firewall-cmd --list-port
