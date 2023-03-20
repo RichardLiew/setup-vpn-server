@@ -171,6 +171,9 @@ sudo docker cp ipsec-vpn-server:/etc/ipsec.d ${WORKDIR}/
 # connect to remote server
 #ssh root@<IP> -p <PORT>
 
+# reset ssh keygen
+#ssh-keygen -R <IP>
+
 # test udp port
 #nc -vuz <UDP-IP> <UDP-PORT>
 
