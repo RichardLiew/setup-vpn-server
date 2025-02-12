@@ -72,8 +72,6 @@ set -e
 #
 ################################################################################
 
-WORKDIR="."
-
 SERVER_ROOT_PASSWORD='Anebit@2019'
 
 VPN_IPSEC_PSK='00000000000000000000'
@@ -81,6 +79,8 @@ VPN_USER='richard'
 VPN_PASSWORD='Anebit@2019'
 VPN_ADDL_USERS='u1 u2 u3'
 VPN_ADDL_PASSWORDS='p1 p2 p3'
+
+WORKDIR="."
 
 ################################################################################
 
