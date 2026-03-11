@@ -98,37 +98,44 @@ sudo mkdir -p ${WORKDIR}
 ################################################################################
 
 # install docker in ubuntu system
-# 1. 卸载旧版 Docker（清理环境，无则提示未安装，不影响）
+################################################################################
+
+# install docker in ubuntu system
+# 1. 卸载旧版 Docker（清理环境，移除废弃的 docker-engine 包名）
 sudo apt-get remove -y -q \
     docker \
-    docker-engine \
     docker.io \
     containerd \
     runc
 
-# 2. 更新 apt 包索引并安装依赖工具
+# 2. 更新 apt 包索引并安装依赖工具（增加 apt-transport-https 兼容旧版Ubuntu）
 sudo apt-get update
 sudo apt-get install -y \
+    apt-transport-https \
     ca-certificates \
     curl \
     gnupg \
     lsb-release
 
-# 3. 添加 Docker 官方 GPG 密钥（验证包完整性）
-sudo mkdir -p /etc/apt/trusted.gpg.d
+# 3. 添加 Docker 官方 GPG 密钥（兼容 Ubuntu 20.04+/22.04+）
+sudo mkdir -m 0755 -p /etc/apt/trusted.gpg.d
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/docker.gpg
 
-# 4. 添加 Docker 官方 apt 源（稳定版，禁用夜间版）
+# 4. 添加 Docker 官方 apt 源（修复签名验证，适配新版Ubuntu）
 echo \
   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/trusted.gpg.d/docker.gpg] https://download.docker.com/linux/ubuntu \
   $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
 # 5. 安装 Docker CE 核心组件（稳定版）
 sudo apt-get update
+# 修复：若更新后仍找不到包，强制刷新源缓存
+sudo apt-get update --fix-missing
 sudo apt-get install -y \
     docker-ce \
     docker-ce-cli \
-    containerd.io
+    containerd.io \
+    docker-buildx-plugin \
+    docker-compose-plugin
 
 ################################################################################
 
