@@ -88,7 +88,7 @@ WORKDIR="."
 ################################################################################
 
 # assign password to sudo command
-echo "${SERVER_ROOT_PASSWORD}" | sudo -S ls > /dev/null 2>&1
+echo "${SERVER_ROOT_PASSWORD}" | sudo -S true
 
 ################################################################################
 
